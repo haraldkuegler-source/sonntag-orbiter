@@ -24,7 +24,7 @@ export default function App() {
     entropy: 0
   });
   
-  const [songInput, setSongInput] = useState("");
+   const [songInput, setSongInput] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
   const [isTrackPlaying, setIsTrackPlaying] = useState(false);
@@ -36,6 +36,17 @@ export default function App() {
     if (!audioEngine.current) {
       audioEngine.current = new AudioEngine();
       await audioEngine.current.init();
+    }
+    
+    // Default Schubert laden, falls noch nichts geladen wurde
+    if (!isOn && audioRef.current && !audioRef.current.src) {
+      audioRef.current.src = '/SchubertRauschen.mp3';
+      audioRef.current.load();
+      if (audioEngine.current) {
+        audioEngine.current.setExternalSource(audioRef.current);
+      }
+      setParams(p => ({ ...p, mode: 'track' }));
+      setSongInput("Und ewig hör ichs rauschen");
     }
     
     if (isOn) {
@@ -108,7 +119,7 @@ export default function App() {
     };
     frame = requestAnimationFrame(update);
     return () => cancelAnimationFrame(frame);
-  }, [isOn]);
+  }, [isOn])
 
   return (
     <div className="min-h-screen w-full flex flex-col items-center justify-center bg-[#020203] p-4 sm:p-8 font-mono text-zinc-400 select-none">
